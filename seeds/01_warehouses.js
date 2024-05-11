@@ -5,8 +5,8 @@
 exports.seed = async function (knex) {
   // Deletes all existing entries in inventories first to avoid foreign key constraint error
   await knex('inventories').del();
-  
-  // Deletes ALL existing entries
+
+  // Deletes all existing entries in warehouses
   await knex('warehouses').del();
 
   // Inserts entries into warehouses

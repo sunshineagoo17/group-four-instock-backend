@@ -11,9 +11,9 @@ app.use(cors());
 const inventoryRoutes = require('./routes/inventory');
 const warehouseRoutes = require('./routes/warehouse');
 
-app.use('/', warehouseRoutes);
+app.use('/warehouses', warehouseRoutes);
 
-app.use('/', inventoryRoutes);
+app.use('/inventories', inventoryRoutes);
 
 app.listen(port, () => {
   console.log(`hey buddy, I'm listening on PORT ${port}`);

@@ -3,8 +3,13 @@
  * @returns { Promise<void> }
  */
 exports.seed = async function (knex) {
+  // Deletes all existing entries in inventories first to avoid foreign key constraint error
+  await knex('inventories').del();
+  
   // Deletes ALL existing entries
   await knex('warehouses').del();
+
+  // Inserts entries into warehouses
   await knex('warehouses').insert([
     {
       id: 1,

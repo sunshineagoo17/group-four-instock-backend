@@ -13,4 +13,16 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET endpoint to fetch all warehouses brotha
+router.get('/warehouses', async (req, res) => {
+    try {
+        const warehouses = await knex('warehouses').select('*');
+        res.status(200).json(warehouses);
+    } catch (error) {
+        console.error('Error fetching warehouses:', error);
+        res.status(500).send('Error fetching warehouses');
+    }
+});
+
+
 module.exports = router;

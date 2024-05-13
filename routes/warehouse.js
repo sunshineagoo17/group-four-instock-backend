@@ -13,4 +13,19 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const warehouse = await knex('warehouses').select('*').where('id', id).first();
+        if (warehouse) {
+            res.status(200).json(warehouse);
+        } else {
+            res.status(404).send('Warehouse not found');
+        }
+    } catch (error) {
+        console.error('Error fetching warehouse:', error);
+        res.status(500).send('Internal server error');
+    }
+});
+
 module.exports = router;

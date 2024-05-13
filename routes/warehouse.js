@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
 
-// Endpoint to get all warehouses - added here for testing purposes
+// Endpoint to get all warehouses - 
 router.get('/', async (req, res) => {
     try {
         const warehouses = await knex('warehouses').select('*');

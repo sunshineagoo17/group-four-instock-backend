@@ -6,7 +6,7 @@ exports.up = function (knex) {
   return knex.schema.createTable('inventories', (table) => {
     table.increments('id').primary();
     table
-      .integer('warehouse_id')
+      .integer('warehouse_id') 
       .unsigned()
       .references('warehouses.id')
       .onUpdate('CASCADE')

@@ -6,8 +6,13 @@ router.get('/', async (req, res) => {
     try {
         const inventoriesWithWarehouseName = await knex('inventories')
         .join('warehouses','warehouses.id','warehouse_id')
-        // .where({warehouse_id: warehouses.id})
-        .select('inventories.id','warehouses.warehouse_name','inventories.item_name','inventories.description','inventories.category','inventories.status','inventories.quantity');
+        .select('inventories.id',
+        'warehouses.warehouse_name',
+        'inventories.item_name',
+        'inventories.description',
+        'inventories.category',
+        'inventories.status',
+        'inventories.quantity');
         res.json(inventoriesWithWarehouseName);
     } catch (error) {
         res.status(500).send('Error fetching inventories');

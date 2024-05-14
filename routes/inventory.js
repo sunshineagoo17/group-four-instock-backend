@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
         'inventories.category',
         'inventories.status',
         'inventories.quantity');
-        res.json(inventoriesWithWarehouseName);
+        res.status(200).json(inventoriesWithWarehouseName);
     } catch (error) {
         res.status(500).send('Error fetching inventories');
     }

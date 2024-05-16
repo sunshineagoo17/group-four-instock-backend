@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
-
+//Endpoint to get the entire inventory list 
 router.get('/', async (req, res) => {
     try {
         const inventoriesWithWarehouseName = await knex('inventories')
@@ -19,9 +19,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-
+//Endpoint to get a single inventory item 
 router.get('/:id', async (req,res)=>{
-
     try{
         const selectedInventoryItem = await knex('inventories')
         .join('warehouses','warehouses.id','warehouse_id')

@@ -17,7 +17,8 @@ router.get('/', async (req, res) => {
         res.status(500).send('Error fetching warehouses');
     }
 });
-//Endpoint to get a single warehouses
+
+// Endpoint to get a single warehouses
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -34,7 +35,8 @@ router.get('/:id', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
-//Endpoint to get a list of inventories for a given warehouse
+
+// Endpoint to get a list of inventories for a given warehouse
 router.get('/:id/inventories', async (req,res)=>{
     try{
         const { id } = req.params;

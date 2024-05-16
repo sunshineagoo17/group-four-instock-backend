@@ -4,6 +4,25 @@ const knex = require('knex')(require('../knexfile'));
 const { body, validationResult } = require('express-validator');
 const validator = require('validator');
 
+// Phone number validation regex
+const phoneRegex = /^\+?(\d{1,4})?[\s-]?(\(?\d{3}\)?)[\s-]?(\d{3})[\s-]?(\d{4})$/;
+
+// Validation middleware for warehouse data
+const validateWarehouse = [
+    body('warehouse_name').notEmpty().withMessage('Warehouse name is required'),
+    body('address').notEmpty().withMessage('Address is required'),
+    body('city').notEmpty().withMessage('City is required'),
+    body('country').notEmpty().withMessage('Country is required'),
+    body('contact_name').notEmpty().withMessage('Contact name is required'),
+    body('contact_position').notEmpty().withMessage('Contact position is required'),
+    // Validate that contact_phone is not empty and is a valid phone number
+    body('contact_phone').notEmpty().withMessage('Contact phone is required')
+        .custom(value => phoneRegex.test(value) || Promise.reject('Invalid phone number')),
+    // Validate that contact_email is not empty and is a valid email address
+    body('contact_email').notEmpty().withMessage('Contact email is required')
+        .isEmail().withMessage('Invalid email address')
+]; 
+
 // Endpoint to get all warehouses 
 router.get('/', async (req, res) => {
     try {
@@ -18,7 +37,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Endpoint to get a single warehouses
+// Endpoint to get a single warehouse
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -60,27 +79,10 @@ router.get('/:id/inventories', async (req,res) => {
     }
 });
 
-// This regular expression handles phone numbers in various formats
-const phoneRegex = /^\+?(\d{1,4})?[\s-]?(\(?\d{3}\)?)[\s-]?(\d{3})[\s-]?(\d{4})$/;
-
 // Endpoint to post/create a new warehouse
 router.post(
     '/',
-    [
-        // Validate request body fields
-        body('warehouse_name').notEmpty().withMessage('Warehouse name is required'),
-        body('address').notEmpty().withMessage('Address is required'),
-        body('city').notEmpty().withMessage('City is required'),
-        body('country').notEmpty().withMessage('Country is required'),
-        body('contact_name').notEmpty().withMessage('Contact name is required'),
-        body('contact_position').notEmpty().withMessage('Contact position is required'),
-        // Validate that contact_phone is not empty and is a valid phone number
-        body('contact_phone').notEmpty().withMessage('Contact phone is required') 
-            .custom(value => phoneRegex.test(value) || Promise.reject('Invalid phone number')), 
-        // Validate that contact_email is not empty and is a valid email address    
-        body('contact_email').notEmpty().withMessage('Contact email is required')
-            .isEmail().withMessage('Invalid email address')
-    ],
+    validateWarehouse, // Reuse the validation middleware
     async (req, res) => {
         // Check for validation errors
         const errors = validationResult(req);

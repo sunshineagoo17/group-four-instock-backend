@@ -35,7 +35,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Endpoint to get a list of inventories for a given warehouse
-router.get('/:id/inventories', async (req,res)=>{
+router.get('/:id/inventories', async (req,res) => {
     const { id } = req.params;
     try {
         // Check if the warehouse exists

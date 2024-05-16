@@ -57,6 +57,7 @@ router.get('/:id/inventories', async (req,res)=>{
     }
 });
 
+// This regular expression handles phone numbers in various formats
 const phoneRegex = /^\+?(\d{1,4})?[\s-]?(\(?\d{3}\)?)[\s-]?(\d{3})[\s-]?(\d{4})$/;
 
 // Endpoint to post/create a new warehouse
@@ -88,18 +89,14 @@ router.post(
         // Get the validated data from the request body
         const warehouseData = req.body;
 
-        try {          // Insert the new warehouse
-   
-            const [newWarehouseId] = await knex('warehouses').insert(warehouseData);
-
-            const newWarehouse = await knex('warehouses').where({ id: newWarehouseId }).first();   // Retrieve the newly inserted warehouse by its ID
-
-            const { created_at, updated_at, ...responseWarehouse } = newWarehouse;   // Exclude created_at and updated_at from the response
-
-            res.status(201).json(responseWarehouse);   // Return 201 status code with the newly created warehouse data
+        try {          
+            const [newWarehouseId] = await knex('warehouses').insert(warehouseData); // Insert the new warehouse
+            const newWarehouse = await knex('warehouses').where({ id: newWarehouseId }).first(); // Retrieve the newly inserted warehouse by its ID
+            const { created_at, updated_at, ...responseWarehouse } = newWarehouse; // Exclude created_at and updated_at from the response
+            
+            res.status(201).json(responseWarehouse); // Return 201 status code with the newly created warehouse data
         } catch (error) {
-
-            res.status(500).json({ message: 'Error creating new warehouse' });   // Return 500 status code with error message if database insertion fails
+            res.status(500).json({ message: `Error creating new warehouse: ${error.message}` }); // Return 500 status code with error message if database insertion fails
         }
     }
 );

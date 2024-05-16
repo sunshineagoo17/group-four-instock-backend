@@ -12,7 +12,6 @@ const inventoryRoutes = require('./routes/inventory');
 const warehouseRoutes = require('./routes/warehouse');
 
 app.use('/api/warehouses', warehouseRoutes);
-
 app.use('/api/inventories', inventoryRoutes);
 
 app.listen(port, () => {

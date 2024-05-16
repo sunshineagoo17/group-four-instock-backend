@@ -2,11 +2,14 @@ const express = require('express');
 const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
 
-// Endpoint to get the entire inventory list 
+// Endpoint to get the entire inventory list or filter by warehouse ID
 router.get('/', async (req, res) => {
+    const { warehouse_id } = req.query; // Extract warehouse_id from query parameters
+
     try {
-        const inventoriesWithWarehouseName = await knex('inventories')
-            .join('warehouses','warehouses.id','warehouse_id')
+        // Build base query to fetch inventory data along with warehouse names
+        let query = knex('inventories')
+            .join('warehouses', 'warehouses.id', 'warehouse_id')
             .select(
                 'inventories.id',
                 'warehouses.warehouse_name',
@@ -16,6 +19,12 @@ router.get('/', async (req, res) => {
                 'inventories.status',
                 'inventories.quantity'
             );
+
+        if (warehouse_id) {
+            query = query.where('warehouse_id', warehouse_id);
+        }
+
+        const inventoriesWithWarehouseName = await query;
         res.status(200).json(inventoriesWithWarehouseName);
     } catch (error) {
         res.status(500).send(`Error fetching inventories: ${error.message}`);

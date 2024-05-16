@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
         res.status(500).send('Error fetching warehouses');
     }
 });
-
+//End point to get a single warehouse
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {

@@ -32,8 +32,8 @@ router.get('/', async (req, res) => {
 });
 
 // Endpoint to get a single inventory item 
-router.get('/:id', async (req,res)=>{
-    try{
+router.get('/:id', async (req,res) => {
+    try {
         const selectedInventoryItem = await knex('inventories')
             .join('warehouses','warehouses.id','warehouse_id')
             .where({ 'inventories.id':req.params.id })
@@ -59,12 +59,12 @@ router.get('/:id', async (req,res)=>{
 });
 
 // Endpoint to delete a single inventory item
-router.delete('/:id', async (req, res) =>{
+router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
     try {
         const idExists = await knex('inventories').select('id').where({ id }).first();
-        if(!idExists) {
+        if (!idExists) {
             return res.status(404).send('Inventory not found');
         }
         await knex('inventories').where({ id }).del();

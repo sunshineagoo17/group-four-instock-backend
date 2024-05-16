@@ -104,4 +104,27 @@ router.post(
     }
 );
 
+// Endpoint to delete a warehouse
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;  
+
+    try {
+        // Check if the warehouse exists
+        const warehouseExists = await knex('warehouses').where({ id }).first();
+        if (!warehouseExists) {
+            return res.status(404).send('Warehouse not found');
+        }
+
+        // Delete inventory items associated with the warehouse
+        await knex('inventories').where({ warehouse_id: id }).del();
+
+        // Delete the warehouse
+        await knex('warehouses').where({ id }).del();
+
+        res.status(204).send();
+    } catch (error) {
+        res.status(500).send(`Error deleting warehouse: ${error.message}`);
+    }
+});
+
 module.exports = router;

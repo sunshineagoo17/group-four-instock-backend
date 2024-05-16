@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
+const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 
 // Endpoint to get all warehouses 
 router.get('/', async (req, res) => {

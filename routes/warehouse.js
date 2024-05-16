@@ -9,51 +9,54 @@ router.get('/', async (req, res) => {
     try {
         const warehouses = await knex('warehouses').select('*');
         const modifiedWarehouses = warehouses.map(warehouse => {
-            
             const { created_at, updated_at, ...rest } = warehouse;
             return rest; // only include necessary fields
         });
         res.json(modifiedWarehouses);
     } catch (error) {
-        console.error('Error fetching warehouses:', error);
-        res.status(500).send('Error fetching warehouses');
+        res.status(500).send(`Error fetching warehouses: ${error.message}`);
     }
 });
-//Endpoint to get a single warehouses
+
+// Endpoint to get a single warehouses
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const warehouse = await knex('warehouses').select('*').where('id', id).first();
         if (warehouse) {
-            
             const { created_at, updated_at, ...responseWarehouse } = warehouse;
             res.status(200).json(responseWarehouse);
         } else {
             res.status(404).send('Warehouse not found');
         }
     } catch (error) {
-        console.error('Error fetching warehouse:', error);
-        res.status(500).send('Internal server error');
+        res.status(500).send(`Error fetching warehouse: ${error.message}`);
     }
 });
-//Endpoint to get a list of inventories for a given warehouse
+
+// Endpoint to get a list of inventories for a given warehouse
 router.get('/:id/inventories', async (req,res)=>{
-    try{
-        const { id } = req.params;
-        const inventorySearch = await knex('warehouses')
-        .select('*')
-        .where('id',id)
-        .first();
-        if(inventorySearch){
-        const inventory = await knex('inventories')
-        .select('id','item_name','category','status','quantity')
-        .where('warehouse_id',id)
-            res.status(200).json(inventory);
-        }else{
-            res.status(404).send('Error: Warehouse ID was not found');
+    const { id } = req.params;
+    try {
+        // Check if the warehouse exists
+        const warehouse = await knex('warehouses').select('id').where('id', id).first();
+        if (!warehouse) {
+            return res.status(404).send('Warehouse not found');
         }
-    }catch(error){
-        res.status(500).send('Error fetching inventory list');
+        // Get the inventories for the given warehouse ID
+        const inventories = await knex('inventories')
+            .select(
+                'id',
+                'item_name',
+                'category',
+                'status',
+                'quantity'
+            )
+            .where('warehouse_id', id);
+
+        res.status(200).json(inventories);
+    } catch (error) {
+        res.status(500).send(`Error fetching inventory list: ${error.message}`);
     }
 });
 

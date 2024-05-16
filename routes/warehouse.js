@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
+const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 
 // Endpoint to get all warehouses 
 router.get('/', async (req, res) => {
@@ -34,5 +36,52 @@ router.get('/:id', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
+
+const phoneRegex = /^\+?(\d{1,4})?[\s-]?(\(?\d{3}\)?)[\s-]?(\d{3})[\s-]?(\d{4})$/;
+
+// Endpoint to post/create a new warehouse
+router.post(
+    '/',
+    [
+        // Validate request body fields
+        body('warehouse_name').notEmpty().withMessage('Warehouse name is required'),
+        body('address').notEmpty().withMessage('Address is required'),
+        body('city').notEmpty().withMessage('City is required'),
+        body('country').notEmpty().withMessage('Country is required'),
+        body('contact_name').notEmpty().withMessage('Contact name is required'),
+        body('contact_position').notEmpty().withMessage('Contact position is required'),
+        // Validate that contact_phone is not empty and is a valid phone number
+        body('contact_phone').notEmpty().withMessage('Contact phone is required') 
+            .custom(value => phoneRegex.test(value) || Promise.reject('Invalid phone number')), 
+        // Validate that contact_email is not empty and is a valid email address    
+        body('contact_email').notEmpty().withMessage('Contact email is required')
+            .isEmail().withMessage('Invalid email address')
+    ],
+    async (req, res) => {
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            // Return 400 status code with error messages if validation fails
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // Get the validated data from the request body
+        const warehouseData = req.body;
+
+        try {          // Insert the new warehouse
+   
+            const [newWarehouseId] = await knex('warehouses').insert(warehouseData);
+
+            const newWarehouse = await knex('warehouses').where({ id: newWarehouseId }).first();   // Retrieve the newly inserted warehouse by its ID
+
+            const { created_at, updated_at, ...responseWarehouse } = newWarehouse;   // Exclude created_at and updated_at from the response
+
+            res.status(201).json(responseWarehouse);   // Return 201 status code with the newly created warehouse data
+        } catch (error) {
+
+            res.status(500).json({ message: 'Error creating new warehouse' });   // Return 500 status code with error message if database insertion fails
+        }
+    }
+);
 
 module.exports = router;

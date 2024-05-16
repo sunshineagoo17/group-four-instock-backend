@@ -49,22 +49,6 @@ router.get('/:id', async (req,res)=>{
     }
 });
 
-// Endpoint to delete a single inventory item
-router.delete('/:id', async (req, res) =>{
-    const { id } = req.params;
-
-    try {
-        const idExists = await knex('inventories').select('id').where({ id }).first();
-        if(!idExists) {
-            return res.status(404).send('Inventory not found');
-        }
-        await knex('inventories').where({ id }).del();
-        res.status(204).end();
-    } catch(error){
-        res.status(500).send(`Error deleting inventory: ${error.message}`);
-    }
-})
-
 module.exports = router;
 
 

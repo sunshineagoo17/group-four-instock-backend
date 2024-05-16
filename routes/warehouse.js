@@ -35,4 +35,23 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/:id/inventories', async (req,res)=>{
+
+    try{
+    const { id } = req.params
+    const inventory = await knex('warehouses')
+    .select('inventories.id','item_name','category','status','quantity')
+    .join('inventories','warehouses.id','warehouse_id')
+    .where('warehouse_id',id);
+    if(inventory.length === 0){
+        res.status(404).send(`Error: Warehouse ID was not found`);
+    }else{
+        res.status(200).json(inventory);
+    }
+    }catch(error){
+        res.status(500).send(`Error fetching inventory list`);
+}
+    
+})
+
 module.exports = router;

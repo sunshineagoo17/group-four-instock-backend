@@ -21,7 +21,6 @@ router.get('/', async (req, res) => {
 
 
 router.get('/:id', async (req,res)=>{
-
     try{
         const selectedInventoryItem = await knex('inventories')
         .join('warehouses','warehouses.id','warehouse_id')

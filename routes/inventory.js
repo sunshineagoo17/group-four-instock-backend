@@ -44,7 +44,7 @@ router.get('/:id', async (req,res)=>{
 
         // Return the first item as an object since we expect only one item
         res.status(200).json(selectedInventoryItem[0]);
-    }catch(error){
+    } catch (error) {
         res.status(500).send(`Error fetching single inventory item: ${error.message}`);
     }
 });
@@ -60,7 +60,7 @@ router.delete('/:id', async (req, res) =>{
         }
         await knex('inventories').where({ id }).del();
         res.status(204).end();
-    } catch(error){
+    } catch (error) {
         res.status(500).send(`Error deleting inventory: ${error.message}`);
     }
 })

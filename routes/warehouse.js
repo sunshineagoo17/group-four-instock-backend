@@ -129,4 +129,38 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Endpoint to edit a warehouse 
+router.put('/:id', validateWarehouse, async (req, res) => {
+    const { id } = req.params;
+    const warehouseData = req.body;
+    const errors = validationResult(req);
+    
+    // Check validation of edit request 
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        // Check if the warehouse exists
+        const warehouse = await knex('warehouses').where({ id }).first();
+
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Warehouse not found' });
+        }
+       
+        // Update the warehouse details in the database
+        await knex('warehouses').where({ id }).update(warehouseData);
+
+        // Return warehouse details that have been updated 
+        const allNewWarehouseDetails = await knex('warehouses').where({ id }).first();
+        const { created_at, updated_at, ...responseWarehouse } = allNewWarehouseDetails;
+
+        // Return the updated warehouse details
+        res.status(200).json(responseWarehouse);
+    } catch (error) {
+        res.status(500).json({ message: `Error updating warehouse: ${error.message}` });
+    }
+});
+
+
 module.exports = router;

@@ -129,4 +129,34 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+//Endpoint to edit a warehouse 
+
+router.put('/:id',validateWarehouse, async (req,res)=>{
+    const { id } = req.params;
+    const editRequest = validationResult(req)
+    try{
+        const warehouseInfo = await knex('warehouses')
+        .where('id',id)
+        .first();
+        if(!warehouseInfo){
+            res.status(404).send('Warehouse not found')
+        }
+        if(!editRequest.isEmpty()){
+            res.status(400).send('Data is incomplete or invalid')
+        }else{
+            const updatedInfo = await knex('warehouses')
+            .select('warehouse_name','address','city','country','contact_name','contact_position','contact_phone','contact_email')
+            .where('id',id)
+            .update(req.body)
+            .first()
+
+            return res.status(200).json(updatedInfo);
+        }
+
+   } catch(error){
+    res.status(500).send(`Error editing warehouse ${error.message}`);
+   }
+})
+
+
 module.exports = router;

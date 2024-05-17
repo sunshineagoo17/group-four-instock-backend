@@ -143,7 +143,6 @@ router.put('/:id',validateWarehouse, async (req,res)=>{
         res.status(400).json({ errors: errors.array() });
     }
 
-
     try{
         //Check if the warehouse exists 
         const warehouseInfo = await knex('warehouses')
@@ -161,7 +160,7 @@ router.put('/:id',validateWarehouse, async (req,res)=>{
 
         //Return warehouse details that have been updated 
 
-        const allNewWarehouseDetails = await knex ('warehouses')
+        const allNewWarehouseDetails = await knex('warehouses')
         .where('id',id)
         .select('*')
         .first();
@@ -169,7 +168,6 @@ router.put('/:id',validateWarehouse, async (req,res)=>{
         const { created_at, updated_at, ...rest } = allNewWarehouseDetails
         return res.status(200).json(warehouseData);
         
-
    } catch(error){
     res.status(500).send(`Error editing warehouse ${error.message}`);
    }

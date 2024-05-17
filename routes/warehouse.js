@@ -129,49 +129,38 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-//Endpoint to edit a warehouse 
-
-router.put('/:id',validateWarehouse, async (req,res)=>{
-    const warehouseData = req.body;
-    console.log(warehouseData); //attempted to console.log to troubleshoot error with request on postman 
-
+// Endpoint to edit a warehouse 
+router.put('/:id', validateWarehouse, async (req, res) => {
     const { id } = req.params;
+    const warehouseData = req.body;
     const errors = validationResult(req);
     
-     //Check validation of edit request 
-    if(!errors.isEmpty()){
-        res.status(400).json({ errors: errors.array() });
+    // Check validation of edit request 
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
     }
 
-    try{
-        //Check if the warehouse exists 
-        const warehouseInfo = await knex('warehouses')
-        .where('id',id)
-        .first();
+    try {
+        // Check if the warehouse exists
+        const warehouse = await knex('warehouses').where({ id }).first();
 
-        if(!warehouseInfo){
-            return res.status(404).send('Warehouse not found')
+        if (!warehouse) {
+            return res.status(404).json({ message: 'Warehouse not found' });
         }
        
-        //Update warehouse 
-        await knex('warehouses')
-        .where('id',id)
-        .update(warehouseData);
+        // Update the warehouse details in the database
+        await knex('warehouses').where({ id }).update(warehouseData);
 
-        //Return warehouse details that have been updated 
+        // Return warehouse details that have been updated 
+        const allNewWarehouseDetails = await knex('warehouses').where({ id }).first();
+        const { created_at, updated_at, ...responseWarehouse } = allNewWarehouseDetails;
 
-        const allNewWarehouseDetails = await knex('warehouses')
-        .where('id',id)
-        .select('*')
-        .first();
-
-        const { created_at, updated_at, ...rest } = allNewWarehouseDetails
-        return res.status(200).json(warehouseData);
-        
-   } catch(error){
-    res.status(500).send(`Error editing warehouse ${error.message}`);
-   }
-})
+        // Return the updated warehouse details
+        res.status(200).json(responseWarehouse);
+    } catch (error) {
+        res.status(500).json({ message: `Error updating warehouse: ${error.message}` });
+    }
+});
 
 
 module.exports = router;

@@ -158,9 +158,8 @@ router.put('/:id', validateWarehouse, async (req, res) => {
         // Return the updated warehouse details
         res.status(200).json(responseWarehouse);
     } catch (error) {
-        res.status(500).json({ message: `Error updating warehouse: ${error.message}` });
+        res.status(500).send(`Error updating new warehouse: ${error.message}`);
     }
 });
-
 
 module.exports = router;

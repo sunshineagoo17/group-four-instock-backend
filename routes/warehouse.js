@@ -132,15 +132,15 @@ router.delete('/:id', async (req, res) => {
 //Endpoint to edit a warehouse 
 
 router.put('/:id',validateWarehouse, async (req,res)=>{
-    const warehouseData = req.body
-    console.log(warehouseData)
+    const warehouseData = req.body;
+    console.log(warehouseData);
     
     const { id } = req.params;
-    const errors = validationResult(req)
+    const errors = validationResult(req);
 
      //Check validation of edit request 
      if(!errors.isEmpty()){
-        res.status(400).json({ errors: errors.array() })
+        res.status(400).json({ errors: errors.array() });
      }
 
     try{
@@ -156,7 +156,7 @@ router.put('/:id',validateWarehouse, async (req,res)=>{
         //Update warehouse 
         await knex('warehouses')
         .where('id',id)
-        .update(warehouseData)
+        .update(warehouseData);
 
         //Return warehouse details that have been updated 
 

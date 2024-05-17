@@ -133,15 +133,16 @@ router.delete('/:id', async (req, res) => {
 
 router.put('/:id',validateWarehouse, async (req,res)=>{
     const warehouseData = req.body;
-    console.log(warehouseData);
-    
+    console.log(warehouseData); //attempted to console.log to troubleshoot error with request on postman 
+
     const { id } = req.params;
     const errors = validationResult(req);
-
+    
      //Check validation of edit request 
-     if(!errors.isEmpty()){
+    if(!errors.isEmpty()){
         res.status(400).json({ errors: errors.array() });
-     }
+    }
+
 
     try{
         //Check if the warehouse exists 
@@ -166,7 +167,7 @@ router.put('/:id',validateWarehouse, async (req,res)=>{
         .first();
 
         const { created_at, updated_at, ...rest } = allNewWarehouseDetails
-        return res.status(200).json(rest);
+        return res.status(200).json(warehouseData);
         
 
    } catch(error){

@@ -100,27 +100,18 @@ router.post('/', validateInventory, async (req, res) => {
     }
 
     // Insert new inventory item
-    const [newInventoryItemId] = await knex('inventories')
-      .insert({
-        warehouse_id,
-        item_name,
-        description,
-        category,
-        status,
-        quantity: parseInt(quantity, 10),
-      })
-      
-    // Retrieve the newly inserted inventory item
-    const newInventoryItem = await knex('inventories')
-      .where({ id: newInventoryItemId })
-      .first();
-
-    // Exclude created_at and updated_at fields from the response
-    const { created_at, updated_at, ...responseInventory } = newInventoryItem;
-
-    res.status(201).json(responseInventory);
+    await knex('inventories').insert({
+      warehouse_id,
+      item_name,
+      description,
+      category,
+      status,
+      quantity: status === 'In Stock' ? quantity : 0,
+    });
+    res.status(201).json({ message: 'Inventory item created successfully' });
   } catch (error) {
-    res.status(500).json({ message: `Error creating inventory item: ${error.message}` });
+    console.error('Error adding inventory item:', error);
+    res.status(500).json({ message: 'Failed to add inventory item' });
   }
 });
 

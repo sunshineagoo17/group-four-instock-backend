@@ -115,4 +115,61 @@ router.post('/', validateInventory, async (req, res) => {
   }
 });
 
+// Endpoint to update an inventory item
+router.put('/:id', validateInventory, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { id } = req.params;
+  const { warehouse_id, item_name, description, category, status, quantity } = req.body;
+
+  try {
+    // Check if inventory ID exists
+    const inventoryExists = await knex('inventories').where({ id }).first();
+    if (!inventoryExists) {
+      return res.status(404).json({ message: 'Inventory ID not found' });
+    }
+
+    // Check if warehouse_id exists
+    const warehouseExists = await knex('warehouses').where({ id: warehouse_id }).first();
+    if (!warehouseExists) {
+      return res.status(400).json({ message: 'Invalid warehouse_id' });
+    }
+
+    // Update the inventory item
+    await knex('inventories')
+      .where({ id })
+      .update({
+        warehouse_id,
+        item_name,
+        description,
+        category,
+        status,
+        quantity: status === 'In Stock' ? quantity : 0,
+      });
+
+    // Fetch the updated inventory item
+    const updatedInventory = await knex('inventories')
+      .join('warehouses', 'warehouses.id', 'warehouse_id')
+      .where({ 'inventories.id': id })
+      .select(
+        'inventories.id',
+        'warehouses.warehouse_name',
+        'inventories.item_name',
+        'inventories.description',
+        'inventories.category',
+        'inventories.status',
+        'inventories.quantity'
+      )
+      .first();
+
+    res.status(200).json(updatedInventory);
+  } catch (error) {
+    console.error('Error updating inventory item:', error);
+    res.status(500).json({ message: 'Failed to update inventory item' });
+  }
+});
+
 module.exports = router;

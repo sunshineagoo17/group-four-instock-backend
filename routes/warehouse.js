@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
 const { body, validationResult } = require('express-validator');
-const validator = require('validator');
 
 // Phone number validation regex
 const phoneRegex = /^\+?(\d{1,4})?[\s-]?(\(?\d{3}\)?)[\s-]?(\d{3})[\s-]?(\d{4})$/;
@@ -21,16 +20,49 @@ const validateWarehouse = [
     // Validate that contact_email is not empty and is a valid email address
     body('contact_email').notEmpty().withMessage('Contact email is required')
         .isEmail().withMessage('Invalid email address')
-]; 
+];
+
+// Custom sorting logic for contact information
+const sortContactInformation = (a, b, sortOrder) => {
+    const aPhone = a.contact_phone || '';
+    const bPhone = b.contact_phone || '';
+    const aEmail = a.contact_email || '';
+    const bEmail = b.contact_email || '';
+
+    if (aPhone < bPhone) return -1 * sortOrder;
+    if (aPhone > bPhone) return 1 * sortOrder;
+    if (aEmail < bEmail) return -1 * sortOrder;
+    if (aEmail > bEmail) return 1 * sortOrder;
+    return 0;
+};
 
 // Endpoint to get all warehouses 
 router.get('/', async (req, res) => {
+    const { sort_by = 'warehouse_name', order_by = 'asc' } = req.query; // Extract query parameters
+
     try {
         const warehouses = await knex('warehouses').select('*');
-        const modifiedWarehouses = warehouses.map(warehouse => {
-            const { created_at, updated_at, ...rest } = warehouse;
-            return rest; // only include necessary fields
+
+        // Sort warehouses based on the provided criteria
+        const sortedWarehouses = warehouses.sort((a, b) => {
+            const sortOrder = order_by === 'asc' ? 1 : -1;
+
+            if (sort_by === 'contact_information') {
+                return sortContactInformation(a, b, sortOrder);
+            }
+
+            const aValue = a[sort_by] || '';
+            const bValue = b[sort_by] || '';
+            if (aValue < bValue) return -1 * sortOrder;
+            if (aValue > bValue) return 1 * sortOrder;
+            return 0;
         });
+
+        const modifiedWarehouses = sortedWarehouses.map(warehouse => {
+            const { created_at, updated_at, ...rest } = warehouse;
+            return rest; 
+        });
+
         res.json(modifiedWarehouses);
     } catch (error) {
         res.status(500).send(`Error fetching warehouses: ${error.message}`);
@@ -54,8 +86,10 @@ router.get('/:id', async (req, res) => {
 });
 
 // Endpoint to get a list of inventories for a given warehouse
-router.get('/:id/inventories', async (req,res) => {
+router.get('/:id/inventories', async (req, res) => {
     const { id } = req.params;
+    const { sort_by = 'item_name', order_by = 'asc' } = req.query; // Extract query parameters
+
     try {
         // Check if the warehouse exists
         const warehouse = await knex('warehouses').select('id').where('id', id).first();
@@ -71,7 +105,8 @@ router.get('/:id/inventories', async (req,res) => {
                 'status',
                 'quantity'
             )
-            .where('warehouse_id', id);
+            .where('warehouse_id', id)
+            .orderBy(sort_by, order_by); // Add sorting to the query
 
         res.status(200).json(inventories);
     } catch (error) {

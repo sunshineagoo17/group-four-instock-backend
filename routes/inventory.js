@@ -15,7 +15,7 @@ const validateInventory = [
 
 // Endpoint to get the entire inventory list or filter by warehouse ID
 router.get('/', async (req, res) => {
-  const { warehouse_id, sort_by = 'item_name', order_by = 'asc' } = req.query;
+  const { warehouse_id, sort_by = 'item_name', order_by = 'asc', s } = req.query;
 
   try {
     let query = knex('inventories')
@@ -29,10 +29,20 @@ router.get('/', async (req, res) => {
         'inventories.status',
         'inventories.quantity'
       )
-      .orderBy(sort_by, order_by); // Added sorting
+      .orderBy(sort_by, order_by);
 
     if (warehouse_id) {
       query = query.where('warehouse_id', warehouse_id);
+    }
+
+    if (s) {
+      query = query.where(function() {
+        this.where('item_name', 'like', `%${s}%`)
+          .orWhere('category', 'like', `%${s}%`)
+          .orWhere('warehouses.warehouse_name', 'like', `%${s}%`)
+          .orWhere('status', 'like', `%${s}%`)
+          .orWhere('quantity', 'like', `%${s}%`);
+      });
     }
 
     const inventoriesWithWarehouseName = await query;

@@ -38,10 +38,24 @@ const sortContactInformation = (a, b, sortOrder) => {
 
 // Endpoint to get all warehouses 
 router.get('/', async (req, res) => {
-    const { sort_by = 'warehouse_name', order_by = 'asc' } = req.query; // Extract query parameters
+    const { sort_by = 'warehouse_name', order_by = 'asc', s } = req.query; // Extract query parameters
 
     try {
-        const warehouses = await knex('warehouses').select('*');
+        let query = knex('warehouses');
+
+        if (s) {
+            query = query.where(function() {
+                this.where('warehouse_name', 'like', `%${s}%`)
+                    .orWhere('address', 'like', `%${s}%`)
+                    .orWhere('city', 'like', `%${s}%`)
+                    .orWhere('country', 'like', `%${s}%`)
+                    .orWhere('contact_name', 'like', `%${s}%`)
+                    .orWhere('contact_phone', 'like', `%${s}%`)
+                    .orWhere('contact_email', 'like', `%${s}%`);
+            });
+        }
+
+        const warehouses = await query.select('*').orderBy(sort_by, order_by);
 
         // Sort warehouses based on the provided criteria
         const sortedWarehouses = warehouses.sort((a, b) => {

@@ -18,6 +18,7 @@ router.get('/', async (req, res) => {
   const { warehouse_id, sort_by = 'item_name', order_by = 'asc', s } = req.query;
 
   try {
+    // Build the base query with sorting
     let query = knex('inventories')
       .join('warehouses', 'warehouses.id', 'warehouse_id')
       .select(
@@ -30,11 +31,13 @@ router.get('/', async (req, res) => {
         'inventories.quantity'
       )
       .orderBy(sort_by, order_by);
-
+    
+    // Add warehouse_id filter
     if (warehouse_id) {
       query = query.where('warehouse_id', warehouse_id);
     }
 
+    // Add search filter
     if (s) {
       query = query.where(function() {
         this.where('item_name', 'like', `%${s}%`)

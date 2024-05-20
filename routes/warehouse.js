@@ -43,6 +43,7 @@ router.get('/', async (req, res) => {
     try {
         let query = knex('warehouses');
 
+        // Add search filter
         if (s) {
             query = query.where(function() {
                 this.where('warehouse_name', 'like', `%${s}%`)
@@ -128,7 +129,7 @@ router.get('/:id/inventories', async (req, res) => {
     }
 });
 
-// Endpoint to post/create a new warehouse
+// Endpoint to create a new warehouse
 router.post(
     '/',
     validateWarehouse, // Reuse the validation middleware

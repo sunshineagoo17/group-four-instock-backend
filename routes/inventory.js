@@ -58,12 +58,12 @@ router.get('/:id', async (req, res) => {
       );
 
     if (selectedInventoryItem.length === 0) {
-      return res.status(404).send('Error: ID was not found');
+      return res.status(404).send('Inventory item not found');
     }
 
     res.status(200).json(selectedInventoryItem[0]);
   } catch (error) {
-    res.status(500).send(`Error fetching single inventory item: ${error.message}`);
+    res.status(500).send(`Error fetching inventory item: ${error.message}`);
   }
 });
 
@@ -74,12 +74,12 @@ router.delete('/:id', async (req, res) => {
   try {
     const idExists = await knex('inventories').select('id').where({ id }).first();
     if (!idExists) {
-      return res.status(404).send('Inventory not found');
+      return res.status(404).send('Inventory item not found');
     }
     await knex('inventories').where({ id }).del();
     res.status(204).end();
   } catch (error) {
-    res.status(500).send(`Error deleting inventory: ${error.message}`);
+    res.status(500).send(`Error deleting inventory item: ${error.message}`);
   }
 });
 
@@ -110,8 +110,7 @@ router.post('/', validateInventory, async (req, res) => {
     });
     res.status(201).json({ message: 'Inventory item created successfully' });
   } catch (error) {
-    console.error('Error adding inventory item:', error);
-    res.status(500).json({ message: 'Failed to add inventory item' });
+    res.status(500).send(`Error adding inventory item: ${error.message}`);
   }
 });
 
@@ -129,13 +128,13 @@ router.put('/:id', validateInventory, async (req, res) => {
     // Check if inventory ID exists
     const inventoryExists = await knex('inventories').where({ id }).first();
     if (!inventoryExists) {
-      return res.status(404).json({ message: 'Inventory ID not found' });
+      return res.status(404).send('Inventory item not found');
     }
 
     // Check if warehouse_id exists
     const warehouseExists = await knex('warehouses').where({ id: warehouse_id }).first();
     if (!warehouseExists) {
-      return res.status(400).json({ message: 'Invalid warehouse_id' });
+      return res.status(400).send('Invalid warehouse_id');
     }
 
     // Update the inventory item
@@ -167,8 +166,7 @@ router.put('/:id', validateInventory, async (req, res) => {
 
     res.status(200).json(updatedInventory);
   } catch (error) {
-    console.error('Error updating inventory item:', error);
-    res.status(500).json({ message: 'Failed to update inventory item' });
+    res.status(500).send(`Error updating inventory item: ${error.message}`);
   }
 });
 

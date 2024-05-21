@@ -99,16 +99,5 @@ exports.seed = async function (knex) {
       contact_phone: '+1 (646) 123-1234',
       contact_email: 'vmendoza@instock.com',
     },
-    {
-      id: 9,
-      warehouse_name: 'Mags',
-      address: '53 Hugo Street',
-      city: 'Toronto',
-      country: 'USA',
-      contact_name: 'Vanessa Mendoza',
-      contact_position: 'Warehouse Manager',
-      contact_phone: '+1 (647) 561-8073',
-      contact_email: 'vmendoza@wpp.com',
-    },
   ]);
 };

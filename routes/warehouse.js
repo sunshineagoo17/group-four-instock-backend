@@ -4,7 +4,7 @@ const knex = require('knex')(require('../knexfile'));
 const { body, validationResult } = require('express-validator');
 
 // Utility function to sanitize search term
-const sanitizeSearchTerm = (term) => {
+const cleanSearchInput = (term) => {
     return term.replace(/[^a-zA-Z0-9]/g, '');
 };
 
@@ -48,13 +48,9 @@ router.get('/', async (req, res) => {
     try {
         let query = knex('warehouses');
 
-        // Log the search term
-        console.log('Search term:', s);
-
         // Add search filter
         if (s) {
-            const sanitizedTerm = sanitizeSearchTerm(s);
-            console.log('Sanitized term:', sanitizedTerm);
+            const cleanedUpTerm = cleanSearchInput(s);
 
             query = query.where(function() {
                 this.where('warehouse_name', 'like', `%${s}%`)
@@ -62,15 +58,12 @@ router.get('/', async (req, res) => {
                     .orWhere('city', 'like', `%${s}%`)
                     .orWhere('country', 'like', `%${s}%`)
                     .orWhere('contact_name', 'like', `%${s}%`)
-                    .orWhere(knex.raw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(contact_phone, ' ', ''), '(', ''), ')', ''), '-', ''), '+', '')"), 'like', `%${sanitizedTerm}%`)
+                    .orWhere(knex.raw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(contact_phone, ' ', ''), '(', ''), ')', ''), '-', ''), '+', '')"), 'like', `%${cleanedUpTerm}%`)
                     .orWhere('contact_email', 'like', `%${s}%`);
             });
         }
 
         const warehouses = await query.select('*');
-
-        // Log the filtered results
-        console.log('Filtered warehouses:', warehouses);
 
         // Sort warehouses based on the provided criteria
         const sortedWarehouses = warehouses.sort((a, b) => {

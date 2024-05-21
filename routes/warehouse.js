@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
             });
         }
 
-        const warehouses = await query.select('*').orderBy(sort_by, order_by);
+        const warehouses = await query.select('*');
 
         // Sort warehouses based on the provided criteria
         const sortedWarehouses = warehouses.sort((a, b) => {

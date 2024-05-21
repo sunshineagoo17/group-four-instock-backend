@@ -3,6 +3,11 @@ const router = express.Router();
 const knex = require('knex')(require('../knexfile'));
 const { body, validationResult } = require('express-validator');
 
+// Utility function to sanitize search term
+const sanitizeSearchTerm = (term) => {
+    return term.replace(/[^a-zA-Z0-9]/g, '');
+};
+
 // Phone number validation regex
 const phoneRegex = /^\+?(\d{1,4})?[\s-]?(\(?\d{3}\)?)[\s-]?(\d{3})[\s-]?(\d{4})$/;
 
@@ -43,20 +48,29 @@ router.get('/', async (req, res) => {
     try {
         let query = knex('warehouses');
 
+        // Log the search term
+        console.log('Search term:', s);
+
         // Add search filter
         if (s) {
+            const sanitizedTerm = sanitizeSearchTerm(s);
+            console.log('Sanitized term:', sanitizedTerm);
+
             query = query.where(function() {
                 this.where('warehouse_name', 'like', `%${s}%`)
                     .orWhere('address', 'like', `%${s}%`)
                     .orWhere('city', 'like', `%${s}%`)
                     .orWhere('country', 'like', `%${s}%`)
                     .orWhere('contact_name', 'like', `%${s}%`)
-                    .orWhere('contact_phone', 'like', `%${s}%`)
+                    .orWhere(knex.raw("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(contact_phone, ' ', ''), '(', ''), ')', ''), '-', ''), '+', '')"), 'like', `%${sanitizedTerm}%`)
                     .orWhere('contact_email', 'like', `%${s}%`);
             });
         }
 
         const warehouses = await query.select('*');
+
+        // Log the filtered results
+        console.log('Filtered warehouses:', warehouses);
 
         // Sort warehouses based on the provided criteria
         const sortedWarehouses = warehouses.sort((a, b) => {

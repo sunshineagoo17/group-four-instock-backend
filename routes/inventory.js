@@ -10,7 +10,17 @@ const validateInventory = [
   body('description').notEmpty().withMessage('Description is required'),
   body('category').notEmpty().withMessage('Category is required'),
   body('status').notEmpty().withMessage('Status is required').isIn(['In Stock', 'Out of Stock']).withMessage('Invalid status value'),
-  body('quantity').notEmpty().withMessage('Quantity is required').isInt().withMessage('Quantity must be a number'),
+  body('quantity').custom((value, { req }) => {
+    if (req.body.status === 'In Stock') {
+      if (value === undefined || value === null) {
+        throw new Error('Quantity is required when status is "In Stock"');
+      }
+      if (!Number.isInteger(value) || value < 0) {
+        throw new Error('Quantity must be a non-negative integer');
+      }
+    }
+    return true;
+  })
 ];
 
 // Endpoint to get the entire inventory list or filter by warehouse ID

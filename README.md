@@ -17,11 +17,10 @@ Before running the migrations, you need to set up your environment variables and
      CREATE DATABASE instock;
      USE instock;
 
-## Run Migrations and Seeds
+4. ** Run Migrations and Seeds**:
 Once the database is created, you'll need to run the database migrations to set up the necessary tables and schema.
 
-1. **Run Migrations**: npx knex migrate:latest
-2. **Run Seeds**: npx knex seed:run
+a. **Run Migrations**: npx knex migrate:latest
+b. **Run Seeds**: npx knex seed:run
 
 These commands will execute the migration and seed files located in the `migrations` and `seeds` folders of your project, respectively, and set up the database with initial data.
-

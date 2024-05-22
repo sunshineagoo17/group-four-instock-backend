@@ -17,5 +17,5 @@ app.use('/api/inventories', inventoryRoutes);
 app.use('/api/categories', categoryRoutes);
 
 app.listen(port, () => {
-  console.log(`hey buddy, I'm listening on PORT ${port}`);
+  console.log(`Hey buddy, I'm listening on PORT ${port}.`);
 });

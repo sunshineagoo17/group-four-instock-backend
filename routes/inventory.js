@@ -5,11 +5,19 @@ const { body, validationResult } = require('express-validator');
 
 // Validation middleware for inventory data
 const validateInventory = [
-  body('warehouse_id').notEmpty().withMessage('Warehouse ID is required').isInt().withMessage('Warehouse ID must be an integer'),
+  body('warehouse_id')
+    .notEmpty()
+    .withMessage('Warehouse ID is required')
+    .isInt()
+    .withMessage('Warehouse ID must be an integer'),
   body('item_name').notEmpty().withMessage('Item name is required'),
   body('description').notEmpty().withMessage('Description is required'),
   body('category').notEmpty().withMessage('Category is required'),
-  body('status').notEmpty().withMessage('Status is required').isIn(['In Stock', 'Out of Stock']).withMessage('Invalid status value'),
+  body('status')
+    .notEmpty()
+    .withMessage('Status is required')
+    .isIn(['In Stock', 'Out of Stock'])
+    .withMessage('Invalid status value'),
   body('quantity').custom((value, { req }) => {
     if (req.body.status === 'In Stock') {
       if (value === undefined || value === null) {
@@ -20,12 +28,17 @@ const validateInventory = [
       }
     }
     return true;
-  })
+  }),
 ];
 
 // Endpoint to get the entire inventory list or filter by warehouse ID
 router.get('/', async (req, res) => {
-  const { warehouse_id, sort_by = 'item_name', order_by = 'asc', s } = req.query;
+  const {
+    warehouse_id,
+    sort_by = 'item_name',
+    order_by = 'asc',
+    s,
+  } = req.query;
 
   try {
     // Build the base query with sorting
@@ -41,7 +54,7 @@ router.get('/', async (req, res) => {
         'inventories.quantity'
       )
       .orderBy(sort_by, order_by);
-    
+
     // Add warehouse_id filter
     if (warehouse_id) {
       query = query.where('warehouse_id', warehouse_id);
@@ -49,7 +62,7 @@ router.get('/', async (req, res) => {
 
     // Add search filter
     if (s) {
-      query = query.where(function() {
+      query = query.where(function () {
         this.where('item_name', 'like', `%${s}%`)
           .orWhere('category', 'like', `%${s}%`)
           .orWhere('warehouses.warehouse_name', 'like', `%${s}%`)
@@ -96,7 +109,10 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const idExists = await knex('inventories').select('id').where({ id }).first();
+    const idExists = await knex('inventories')
+      .select('id')
+      .where({ id })
+      .first();
     if (!idExists) {
       return res.status(404).send('Inventory item not found');
     }
@@ -114,11 +130,14 @@ router.post('/', validateInventory, async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { warehouse_id, item_name, description, category, status, quantity } = req.body;
+  const { warehouse_id, item_name, description, category, status, quantity } =
+    req.body;
 
   try {
     // Check if warehouse_id exists
-    const warehouseExists = await knex('warehouses').where({ id: warehouse_id }).first();
+    const warehouseExists = await knex('warehouses')
+      .where({ id: warehouse_id })
+      .first();
     if (!warehouseExists) {
       return res.status(400).json({ message: 'Invalid warehouse_id' });
     }
@@ -146,7 +165,8 @@ router.put('/:id', validateInventory, async (req, res) => {
   }
 
   const { id } = req.params;
-  const { warehouse_id, item_name, description, category, status, quantity } = req.body;
+  const { warehouse_id, item_name, description, category, status, quantity } =
+    req.body;
 
   try {
     // Check if inventory ID exists
@@ -156,7 +176,9 @@ router.put('/:id', validateInventory, async (req, res) => {
     }
 
     // Check if warehouse_id exists
-    const warehouseExists = await knex('warehouses').where({ id: warehouse_id }).first();
+    const warehouseExists = await knex('warehouses')
+      .where({ id: warehouse_id })
+      .first();
     if (!warehouseExists) {
       return res.status(400).send('Invalid warehouse_id');
     }

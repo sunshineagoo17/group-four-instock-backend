@@ -8,7 +8,9 @@ router.get('/', async (req, res) => {
     const categories = await knex('categories').select('*');
     res.json(categories);
   } catch (error) {
-    res.status(500).json({ message: `Error fetching categories: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error fetching categories: ${error.message}` });
   }
 });
 
@@ -23,7 +25,9 @@ router.get('/:id', async (req, res) => {
       res.status(404).json({ message: 'Category not found' });
     }
   } catch (error) {
-    res.status(500).json({ message: `Error fetching category: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error fetching category: ${error.message}` });
   }
 });
 
@@ -32,10 +36,14 @@ router.post('/', async (req, res) => {
   try {
     const { name } = req.body;
     const [newCategoryId] = await knex('categories').insert({ name });
-    const newCategory = await knex('categories').where({ id: newCategoryId }).first();
+    const newCategory = await knex('categories')
+      .where({ id: newCategoryId })
+      .first();
     res.status(201).json(newCategory);
   } catch (error) {
-    res.status(500).json({ message: `Error creating category: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error creating category: ${error.message}` });
   }
 });
 
@@ -48,7 +56,9 @@ router.put('/:id', async (req, res) => {
     const updatedCategory = await knex('categories').where({ id }).first();
     res.json(updatedCategory);
   } catch (error) {
-    res.status(500).json({ message: `Error updating category: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error updating category: ${error.message}` });
   }
 });
 
@@ -59,7 +69,9 @@ router.delete('/:id', async (req, res) => {
     await knex('categories').where({ id }).del();
     res.status(204).end();
   } catch (error) {
-    res.status(500).json({ message: `Error deleting category: ${error.message}` });
+    res
+      .status(500)
+      .json({ message: `Error deleting category: ${error.message}` });
   }
 });
 

@@ -125,13 +125,13 @@ router.delete('/:id', async (req, res) => {
 
 // Endpoint to add a new inventory item
 router.post('/', validateInventory, async (req, res) => {
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { warehouse_id, item_name, description, category, status, quantity } =
-    req.body;
+  const { warehouse_id, item_name, description, category, status, quantity } = req.body;
 
   try {
     // Check if warehouse_id exists
@@ -153,6 +153,7 @@ router.post('/', validateInventory, async (req, res) => {
     });
     res.status(201).json({ message: 'Inventory item created successfully' });
   } catch (error) {
+    console.error('Error adding inventory item:', error); // Debugging
     res.status(500).send(`Error adding inventory item: ${error.message}`);
   }
 });

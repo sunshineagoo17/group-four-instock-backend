@@ -125,7 +125,6 @@ router.delete('/:id', async (req, res) => {
 
 // Endpoint to add a new inventory item
 router.post('/', validateInventory, async (req, res) => {
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -143,17 +142,22 @@ router.post('/', validateInventory, async (req, res) => {
     }
 
     // Insert new inventory item
-    await knex('inventories').insert({
-      warehouse_id,
-      item_name,
-      description,
-      category,
-      status,
-      quantity: status === 'In Stock' ? quantity : 0,
-    });
-    res.status(201).json({ message: 'Inventory item created successfully' });
+    const [newItemId] = await knex('inventories')
+      .insert({
+        warehouse_id,
+        item_name,
+        description,
+        category,
+        status,
+        quantity: status === 'In Stock' ? quantity : 0,
+      });
+
+    // Fetch the newly created inventory item to get its ID
+    const newItem = await knex('inventories').where({ id: newItemId }).first();
+
+    res.status(201).json({ id: newItem.id, message: 'Inventory item created successfully' });
   } catch (error) {
-    console.error('Error adding inventory item:', error); // Debugging
+    console.error('Error adding inventory item:', error);
     res.status(500).send(`Error adding inventory item: ${error.message}`);
   }
 });

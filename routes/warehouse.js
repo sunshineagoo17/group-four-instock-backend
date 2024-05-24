@@ -168,7 +168,7 @@ router.post('/', validateWarehouse, async (req, res) => {
       .first();
     const { created_at, updated_at, ...responseWarehouse } = newWarehouse;
 
-    res.status(201).json(responseWarehouse);
+    res.status(201).json({ id: newWarehouseId, ...responseWarehouse });
   } catch (error) {
     res
       .status(500)

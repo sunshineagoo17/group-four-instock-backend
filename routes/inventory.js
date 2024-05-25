@@ -109,6 +109,7 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Check if the item exists
     const idExists = await knex('inventories')
       .select('id')
       .where({ id })

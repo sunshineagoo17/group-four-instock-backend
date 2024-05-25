@@ -86,6 +86,7 @@ router.get('/:id', async (req, res) => {
       .where({ 'inventories.id': req.params.id })
       .select(
         'inventories.id',
+        'inventories.warehouse_id', 
         'warehouses.warehouse_name',
         'inventories.item_name',
         'inventories.description',
@@ -207,6 +208,7 @@ router.put('/:id', validateInventory, async (req, res) => {
       .where({ 'inventories.id': id })
       .select(
         'inventories.id',
+        'inventories.warehouse_id',
         'warehouses.warehouse_name',
         'inventories.item_name',
         'inventories.description',

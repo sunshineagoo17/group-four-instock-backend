@@ -62,12 +62,13 @@ router.get('/', async (req, res) => {
 
     // Add search filter
     if (s) {
+      const searchTerm = s.replace(/-/g, ' ');
       query = query.where(function () {
-        this.where('item_name', 'like', `%${s}%`)
-          .orWhere('category', 'like', `%${s}%`)
-          .orWhere('warehouses.warehouse_name', 'like', `%${s}%`)
-          .orWhere('status', 'like', `%${s}%`)
-          .orWhere('quantity', 'like', `%${s}%`);
+        this.where('item_name', 'like', `%${searchTerm}%`)
+          .orWhere('category', 'like', `%${searchTerm}%`)
+          .orWhere('warehouses.warehouse_name', 'like', `%${searchTerm}%`)
+          .orWhere('status', 'like', `%${searchTerm}%`)
+          .orWhere('quantity', 'like', `%${searchTerm}%`);
       });
     }
 
